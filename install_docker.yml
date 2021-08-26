@@ -1,6 +1,5 @@
 - name: Install Docker Service
   hosts: all
-  gather_facts: false
   tasks:
   - name: check os
     assert:
