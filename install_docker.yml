@@ -1,0 +1,29 @@
+- name: Install Docker Service
+  hosts: all
+  tasks:
+  - name: check os
+    assert:
+      that:
+        - ansible_facts['distribution'] == "Rocky"
+      fail_msg: "This script is for Rocky only. {{ ansible_distribution }} detected."
+      success_msg: "{{ ansible_distribution }} detected."
+
+- name: Retrive system info
+  hosts: all
+  tasks:
+  - shell: uname -a
+    ignore_errors: yes
+    changed_when: false
+    register: uname_result
+  - debug: msg="{{ uname_result.stdout }}"
+
+- name: Install Docker
+  hosts: all
+  tasks:
+    - name: Install yum utils
+      yum:
+        name: yum-utils
+        state: latest
+
+    - name:
+      yum name:
