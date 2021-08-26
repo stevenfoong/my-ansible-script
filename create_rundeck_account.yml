@@ -1,0 +1,37 @@
+- name: Create Rundeck Account locally
+  hosts: all
+  tasks:
+  - name: check os
+    assert:
+      that: 
+       ansible_facts['distribution'] == "Ubuntu" or
+       ansible_facts['distribution'] == "Rocky"
+      fail_msg: "This script is for Ubuntu only. {{ ansible_distribution }} detected."
+      success_msg: "{{ ansible_distribution }} detected."
+
+- name: test system
+  hosts: all
+  tasks:
+  - shell: uname -a
+    ignore_errors: yes
+    changed_when: false
+    register: uname_result
+  - debug: msg="{{ uname_result.stdout }}"
+  
+  - name: Create rundeck Account
+    user:
+      name: rundeck
+      shell: /bin/bash
+      password: '*'
+      
+  - name: Set authorized key
+    authorized_key:
+      user: rundeck
+      state: present
+      key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCVCGB2qTPQIMm+QLJU5BoiU6MGFtEC/3yrY9UhRLGKpT3JDh96G8LGU16FGYX/2ACirN7EUNjVS4KHjkYABjin7PYPXwTkMb0Mt6gwHC4YTg6HNsYGIFuSGIQ43YN2NyMFiTbBUFkagkI1V27Ew1jZICNxJc3VdOcuvp9ImXuzDCYMTA2Z+1dTobR3fOcjf4kVm4YLMuhwT134AKXRoYAKmvF3JwOnP/me9CKj+bl2KTxwqu0BeeMdtc31N5WExsmzNqLAqV2Pw9+a9XNwV7N1BFMRmYC4Y5cprEbqxFiseU0Sz5Y3NlBUYE8zuXZUDe6BY/4hMY+WXpoFH96TM2YL rundeck@f93070483781"
+
+  - name: Grant sudo permission
+    copy:
+      dest: "/etc/sudoers.d/rundeck_sudoers"
+      content: |
+        rundeck    ALL=(ALL:ALL) NOPASSWD:ALL
